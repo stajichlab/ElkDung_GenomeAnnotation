@@ -42,6 +42,6 @@ do
      export AUGUSTUS_CONFIG_PATH=$(realpath lib/augustus/3.3/config)
 	#makeblastdb -in $INDIR/$name.sorted.fasta -dbtype nucl -out repeat_library/$name
 	BuildDatabase -name repeat_library/$name $INDIR/$name.sorted.fasta
-	RepeatModeler -database repeat_library/$name -pa $CPU
+	RepeatModeler -database repeat_library/$name -threads $CPU
 	#-LTRStruct
 done
