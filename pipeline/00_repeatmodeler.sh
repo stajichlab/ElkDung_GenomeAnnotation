@@ -29,19 +29,14 @@ if [ $N -gt $(expr $MAX) ]; then
 fi
 
 IFS=,
-tail -n +2 $SAMPFILE | sed -n ${N}p | while read SPECIES STRAIN PHYLUM LOCUS
+tail -n +2 $SAMPFILE | sed -n ${N}p | while read SPECIES STRAIN GENOME BUSCO PHYLUM BIOPROJECT BIOSAMPLE LOCUS
 do
   name=$(echo -n ${SPECIES}_${STRAIN} | perl -p -e 's/\s+/_/g')
   echo "$name"
-     module unload perl
-     module unload python
-     module unload miniconda2
-     module unload anaconda3
-     module load RepeatModeler
-     module load ncbi-blast/2.13.0+
-     export AUGUSTUS_CONFIG_PATH=$(realpath lib/augustus/3.3/config)
+  module load RepeatModeler
+  export AUGUSTUS_CONFIG_PATH=$(realpath lib/augustus/3.3/config)
 	#makeblastdb -in $INDIR/$name.sorted.fasta -dbtype nucl -out repeat_library/$name
-	BuildDatabase -name repeat_library/$name $INDIR/$name.sorted.fasta
+	BuildDatabase -name repeat_library/$name $INDIR/$GENOME
 	RepeatModeler -database repeat_library/$name -threads $CPU
 	#-LTRStruct
 done
