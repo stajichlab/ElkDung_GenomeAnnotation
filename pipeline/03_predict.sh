@@ -1,12 +1,7 @@
 #!/usr/bin/bash -l
-#SBATCH -p batch --time 3-0:00:00 --ntasks 16 --nodes 1 --mem 24G --out logs/predict.%a.log
+#SBATCH --time 3-0:00:00 --ntasks 16 --nodes 1 --mem 24G --out logs/predict.%a.log
 
 module load funannotate
-
-# this will define $SCRATCH variable if you don't have this on your system you can basically do this depending on
-# where you have temp storage space and fast disks
-# SCRATCH=/tmp/${USER}_$$
-# mkdir -p $SCRATCH 
 module load workspace/scratch
 
 CPU=1
@@ -43,9 +38,9 @@ export FUNANNOTATE_DB=/bigdata/stajichlab/shared/lib/funannotate_db
 SEED_SPECIES=anidulans
 
 IFS=,
-tail -n +2 $SAMPFILE | sed -n ${N}p | while read SPECIES STRAIN PHYLUM BIOSAMPLE BIOPROJECT LOCUSTAG
+tail -n +2 $SAMPFILE | sed -n ${N}p | while read SPECIES STRAIN GENOME BUSCO PHYLUM BIOPROJECT BIOSAMPLE LOCUS
 do
-    SEQCENTER=JGI
+    SEQCENTER=NCBI
     BASE=$(echo -n "$SPECIES $STRAIN" | perl -p -e 's/\s+/_/g')
     echo "sample is $BASE"
     MASKED=$(realpath $INDIR/$BASE.masked.fasta)
@@ -56,12 +51,12 @@ do
     if [[ -f $PREDS/$BASE.genemark.gtf ]]; then
     funannotate predict --cpus $CPU --keep_no_stops --SeqCenter $SEQCENTER --busco_db $BUSCO --optimize_augustus \
         --strain $STRAIN --min_training_models 100 --AUGUSTUS_CONFIG_PATH $AUGUSTUS_CONFIG_PATH \
-        -i $INDIR/$BASE.masked.fasta --name $LOCUSTAG --protein_evidence lib/informant.aa \
+        -i $INDIR/$BASE.masked.fasta --name $LOCUS \
         -s "$SPECIES"  -o $OUTDIR/$BASE --busco_seed_species $SEED_SPECIES --genemark_gtf $PREDS/$BASE.genemark.gtf
     else
     funannotate predict --cpus $CPU --keep_no_stops --SeqCenter $SEQCENTER --busco_db $BUSCO --optimize_augustus \
 	--strain $STRAIN --min_training_models 100 --AUGUSTUS_CONFIG_PATH $AUGUSTUS_CONFIG_PATH \
-	-i $INDIR/$BASE.masked.fasta --name $LOCUSTAG --protein_evidence lib/informant.aa \
+	-i $INDIR/$BASE.masked.fasta --name $LOCUS \
 	-s "$SPECIES"  -o $OUTDIR/$BASE --busco_seed_species $SEED_SPECIES --tmpdir $SCRATCH
     fi
 done

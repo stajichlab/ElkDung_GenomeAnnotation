@@ -32,11 +32,10 @@ IFS=,
 tail -n +2 $SAMPFILE | sed -n ${N}p | while read SPECIES STRAIN GENOME BUSCO PHYLUM BIOPROJECT BIOSAMPLE LOCUS
 do
   name=$(echo -n ${SPECIES}_${STRAIN} | perl -p -e 's/\s+/_/g')
-  echo "$name"
+  echo "$name $GENOME"
   module load RepeatModeler
   export AUGUSTUS_CONFIG_PATH=$(realpath lib/augustus/3.3/config)
-	#makeblastdb -in $INDIR/$name.sorted.fasta -dbtype nucl -out repeat_library/$name
-	BuildDatabase -name repeat_library/$name $INDIR/$GENOME
-	RepeatModeler -database repeat_library/$name -threads $CPU
-	#-LTRStruct
+  makeblastdb -in $INDIR/$GENOME -dbtype nucl -out repeat_library/$name
+  BuildDatabase -name repeat_library/$name $INDIR/$GENOME
+  RepeatModeler -database repeat_library/$name -threads $CPU -LTRStruct
 done

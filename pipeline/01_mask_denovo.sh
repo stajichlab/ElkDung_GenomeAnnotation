@@ -1,5 +1,5 @@
 #!/usr/bin/bash -l
-#SBATCH -p batch --time 2-0:00:00 --ntasks 8 --nodes 1 --mem 24G --out logs/mask.%a.log
+#SBATCH --time 2-0:00:00 --ntasks 8 --nodes 1 --mem 24G --out logs/mask.%a.log
 
 CPU=1
 if [ $SLURM_CPUS_ON_NODE ]; then
@@ -29,10 +29,10 @@ if [ $N -gt $(expr $MAX) ]; then
 fi
 
 IFS=,
-tail -n +2 $SAMPFILE | sed -n ${N}p | while read SPECIES STRAIN PHYLUM BIOPROJECT BIOSAMPLE LOCUS
+tail -n +2 $SAMPFILE | sed -n ${N}p | while read SPECIES STRAIN GENOME BUSCO PHYLUM BIOPROJECT BIOSAMPLE LOCUS
 do
   name=$(echo -n ${SPECIES}_${STRAIN} | perl -p -e 's/\s+/_/g')
-  if [ ! -f $INDIR/${name}.sorted.fasta ]; then
+  if [ ! -f $INDIR/$GENOME ]; then
      echo "Cannot find $name in $INDIR - may not have been run yet"
      exit
   fi
@@ -45,17 +45,13 @@ do
     	  LIBRARY=$(realpath repeat_library/${name}.repeatmodeler-library.fasta)
      fi
      echo "LIBRARY is $LIBRARY"
-     mkdir $name.mask.$$
-     pushd $name.mask.$$
-     if [ ! -z $LIBRARY ]; then
-    	 funannotate mask --cpus $CPU -i ../$INDIR/${name}.sorted.fasta -o ../$OUTDIR/${name}.masked.fasta -l $LIBRARY --method repeatmodeler
+     if [[ -z $LIBRARY || ! -s $LIBRARY ]]; then
+    	 funannotate mask --cpus $CPU -i $INDIR/$GENOME -o $OUTDIR/${name}.masked.fasta --method tantan
      else
-       funannotate mask --cpus $CPU -i ../$INDIR/${name}.sorted.fasta -o ../$OUTDIR/${name}.masked.fasta --method repeatmodeler
-       mv repeatmodeler-library.*.fasta ../repeat_library/${name}.repeatmodeler-library.fasta
-       mv funannotate-mask.log ../logs/masklog_long.$name.log
+       funannotate mask --cpus $CPU -i $INDIR/$GENOME -o $OUTDIR/${name}.masked.fasta --method repeatmasker -l $LIBRARY
+       #mv repeatmodeler-library.*.fasta ../repeat_library/${name}.repeatmodeler-library.fasta
+       mv funannotate-mask.log logs/masklog_long.$name.log
      fi
-     popd
-     rmdir $name.mask.$$
   else
      echo "Skipping ${name} as masked already"
   fi
