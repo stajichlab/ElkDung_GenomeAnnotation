@@ -1,2 +1,6 @@
 SPECIES,STRAIN,GENOME,BUSCO,PHYLUM,BIOPROJECT,BIOSAMPLE,LOCUS
 Protomyces inouyei,NRRL YB-4354,GCA_003717155.1_ASM371715v1_genomic.fna,ascomycota_odb10,Ascomycota,,,PINOU
+Protomyces macrosporus,NRRL Y-12879,GCA_003717175.1_ASM371717v1_genomic.fna,ascomycota_odb10,Ascomycota,,,PIMAC
+Vishniacozyma victoriae,T18_1_22C,GCA_017654735.1_ASM1765473v1_genomic.fna,tremellomycetes_odb10,Basidiomycota,,,VIVIC
+Cystobasidium slooffiae,I2-R3,GCA_019775285.1_ASM1977528v1_genomic.fna,basidiomycota_odb10,Basidiomycota,,,CYSLO
+Parastagonospora avenae f. sp. tritici,18332-5,GCA_022559985.1_ASM2255998v1_genomic.fna,dothideomycetes_odb10,Ascomycota,,,PAAVETRIT
