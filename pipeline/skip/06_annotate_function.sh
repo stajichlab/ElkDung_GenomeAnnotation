@@ -1,10 +1,11 @@
 #!/usr/bin/bash -l
 #SBATCH --nodes=1
-#SBATCH --ntasks=24 --mem 16gb
+#SBATCH --ntasks=16 --mem 16gb
 #SBATCH --output=logs/annotfunc.%a.log
 #SBATCH --time=2-0:00:00
-#SBATCH -J annotfunc
+#SBATCH -p intel -J annotfunc
 
+module unload miniconda2 miniconda3 perl python
 module load funannotate
 module load phobius
 
@@ -35,7 +36,7 @@ if [ $N -gt $MAX ]; then
   exit
 fi
 IFS=,
-tail -n +2 $SAMPFILE | sed -n ${N}p | while read SPECIES STRAIN GENOME BUSCO PHYLUM BIOPROJECT BIOSAMPLE LOCUS
+tail -n +2 $SAMPFILE | sed -n ${N}p | while read SPECIES STRAIN PHYLUM BIOSAMPLE BIOPROJECT LOCUSTAG
 do
   BASE=$(echo -n "$SPECIES $STRAIN" | perl -p -e 's/\s+/_/g')
   STRAIN_NOSPACE=$(echo -n "$STRAIN" | perl -p -e 's/\s+/_/g')
